@@ -1,4 +1,7 @@
 import streamlit as st
+
+st.write(st.secrets)  # 👈 放這裡（測試用）
+
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
