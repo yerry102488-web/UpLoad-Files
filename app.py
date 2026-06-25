@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
@@ -11,19 +10,19 @@ import io
 st.set_page_config(page_title="☁️ 雲端檔案系統", layout="wide")
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
-FOLDER_ID = "1I0GLgtYVR4uedDLss6qkT8RWy-451Mg1"   # 🔥 一定要改
+FOLDER_ID = "1I0GLgtYVR4uedDLss6qkT8RWy-451Mg1"  # ✅ 你的資料夾ID
 
 # ===============================
-# ✅ Google Drive 連線
+# ✅ Google Drive 連線（用 Secrets）
 # ===============================
 @st.cache_resource
 def get_drive_service():
-    credentials = service_account.Credentials.from_service_account_file(
-        "credentials.json", scopes=SCOPES
+    credentials = service_account.Credentials.from_service_info(
+        st.secrets["gcp_service_account"],
+        scopes=SCOPES
     )
     service = build('drive', 'v3', credentials=credentials)
     return service
-
 
 # ===============================
 # ✅ 上傳檔案
@@ -36,7 +35,6 @@ def upload_to_drive(uploaded_file):
         'parents': [FOLDER_ID]
     }
 
-    # 使用記憶體（不用寫 temp 檔更安全）
     file_stream = io.BytesIO(uploaded_file.getbuffer())
 
     media = MediaIoBaseUpload(file_stream, resumable=True)
@@ -48,7 +46,6 @@ def upload_to_drive(uploaded_file):
     ).execute()
 
     return file.get("id")
-
 
 # ===============================
 # ✅ 取得檔案列表
@@ -65,7 +62,6 @@ def list_files():
 
     return results.get("files", [])
 
-
 # ===============================
 # ✅ 刪除檔案
 # ===============================
@@ -73,15 +69,14 @@ def delete_file(file_id):
     service = get_drive_service()
     service.files().delete(fileId=file_id).execute()
 
-
 # ===============================
 # ✅ UI
 # ===============================
-st.title("☁️ Google Drive 檔案系統")
-st.caption("檔案會儲存在雲端（永久）✅")
+st.title("☁️ Google Drive 雲端檔案系統")
+st.caption("✅ 檔案永久保存在 Google Drive")
 
 # ===============================
-# 📤 上傳
+# 📤 上傳檔案
 # ===============================
 st.subheader("📤 上傳檔案")
 
@@ -104,7 +99,7 @@ if uploaded_files:
 # 📁 檔案列表
 # ===============================
 st.divider()
-st.subheader("📁 雲端檔案")
+st.subheader("📁 雲端檔案列表")
 
 files = list_files()
 
@@ -122,7 +117,7 @@ else:
         with col1:
             st.write(f"📄 {file_name}")
 
-        # ✅ 大小
+        # ✅ 檔案大小
         with col2:
             st.write(f"{file_size:.1f} KB")
 
