@@ -11,7 +11,7 @@ import io
 st.set_page_config(page_title="☁️ 雲端檔案系統", layout="wide")
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
-FOLDER_ID = "你的資料夾ID"   # 🔥 一定要改
+FOLDER_ID = "1I0GLgtYVR4uedDLss6qkT8RWy-451Mg1"   # 🔥 一定要改
 
 # ===============================
 # ✅ Google Drive 連線
